@@ -1,6 +1,16 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../Config/Database.php';
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../../index.php');
+    exit;
+}
+if (!in_array($_SESSION['user_role'], ['administrateur', 'comptable'])) {
+    $_SESSION['message'] = "Accès réservé au service Paiements";
+    $_SESSION['message_type'] = 'error';
+    header('Location: ../../Dashboard.php');
+    exit;
+}
 require_once __DIR__ . '/../../Classes/Paiement.php';
 require_once __DIR__ . '/../../Classes/Prestation.php';
 require_once __DIR__ . '/../../Classes/Affectation.php';

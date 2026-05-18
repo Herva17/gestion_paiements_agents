@@ -231,6 +231,11 @@ ALTER TABLE `service`
 ALTER TABLE `utilisateur`
   MODIFY `id_utilisateur` int(11) NOT NULL AUTO_INCREMENT;
 
+-- Insertion d'utilisateurs de démarrage
+INSERT INTO `utilisateur` (`nom_utilisateur`, `mot_de_passe`, `role`) VALUES
+('admin', 'admin123', 'administrateur'),
+('comptable', 'compta123', 'comptable');
+
 --
 -- Contraintes pour les tables déchargées
 --

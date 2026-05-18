@@ -1,6 +1,16 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../Config/Database.php';
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../../index.php');
+    exit;
+}
+if ($_SESSION['user_role'] !== 'administrateur') {
+    $_SESSION['message'] = "Accès réservé aux administrateurs";
+    $_SESSION['message_type'] = 'error';
+    header('Location: ../paiements/index.php');
+    exit;
+}
 require_once __DIR__ . '/../../Classes/Agent.php';
 
 $agents = Agent::getAll();
@@ -37,7 +47,7 @@ if (isset($_SESSION['message'])) {
             <nav class="mt-6 px-4">
                 <ul class="space-y-2">
                     <li>
-                        <a href="../../index.php" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <a href="../../Dashboard.php" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-700 transition">
                             <i class="fas fa-chart-line mr-3"></i>Dashboard
                         </a>
                     </li>

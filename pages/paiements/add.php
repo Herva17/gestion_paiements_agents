@@ -1,8 +1,20 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../Config/Database.php';
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../../index.php');
+    exit;
+}
+if (!in_array($_SESSION['user_role'], ['administrateur', 'comptable'])) {
+    $_SESSION['message'] = "Accès réservé au service Paiements";
+    $_SESSION['message_type'] = 'error';
+    header('Location: ../../Dashboard.php');
+    exit;
+}
 require_once __DIR__ . '/../../Classes/Paiement.php';
 require_once __DIR__ . '/../../Classes/Prestation.php';
+
+$role = $_SESSION['user_role'] ?? 'Invité';
 
 $paiement = null;
 $is_edit = false;
@@ -89,10 +101,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <nav class="mt-6 px-4">
                 <ul class="space-y-2">
                     <li>
-                        <a href="../../index.php" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-700 transition">
+                        <a href="../../Dashboard.php" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-700 transition">
                             <i class="fas fa-chart-line mr-3"></i>Dashboard
                         </a>
                     </li>
+                    <?php if ($role === 'administrateur'): ?>
                     <li>
                         <a href="../agents/index.php" class="flex items-center px-4 py-3 rounded-lg hover:bg-gray-700 transition">
                             <i class="fas fa-users mr-3"></i>Agents
@@ -113,6 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <i class="fas fa-briefcase-medical mr-3"></i>Prestations
                         </a>
                     </li>
+                    <?php endif; ?>
                     <li>
                         <a href="index.php" class="flex items-center px-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 transition">
                             <i class="fas fa-credit-card mr-3"></i>Paiements
@@ -130,12 +144,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <h2 class="text-2xl font-bold text-gray-800"><?php echo $title; ?></h2>
                     <div class="flex items-center gap-4">
                         <div class="text-right">
-                            <p class="text-sm text-gray-600">Administrator</p>
-                            <p class="font-semibold text-gray-800">Bienvenue</p>
+                            <p class="text-sm text-gray-600"><?php echo htmlspecialchars($_SESSION['user_role']); ?></p>
+                            <p class="font-semibold text-gray-800"><?php echo htmlspecialchars($_SESSION['username']); ?></p>
                         </div>
                         <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white">
                             <i class="fas fa-user"></i>
                         </div>
+                        <a href="../../logout.php" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">Déconnexion</a>
                     </div>
                 </div>
             </div>

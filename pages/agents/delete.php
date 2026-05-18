@@ -1,6 +1,16 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../Config/Database.php';
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../../index.php');
+    exit;
+}
+if ($_SESSION['user_role'] !== 'administrateur') {
+    $_SESSION['message'] = "Accès réservé aux administrateurs";
+    $_SESSION['message_type'] = 'error';
+    header('Location: ../paiements/index.php');
+    exit;
+}
 require_once __DIR__ . '/../../Classes/Agent.php';
 
 if (!isset($_GET['id'])) {
