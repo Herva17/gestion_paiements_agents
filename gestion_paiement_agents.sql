@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : jeu. 14 mai 2026 à 11:06
+-- Généré le : jeu. 21 mai 2026 à 21:54
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -147,6 +147,14 @@ CREATE TABLE `utilisateur` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Déchargement des données de la table `utilisateur`
+--
+
+INSERT INTO `utilisateur` (`id_utilisateur`, `nom_utilisateur`, `mot_de_passe`, `role`, `date_creation`) VALUES
+(1, 'SALEH', '$2y$10$n6CJzPKEBo.MRPEs8ByBEegk.KLkSy531o7eIfLHkFPAHGfYpag92', 'administrateur', '2026-05-18 19:50:40'),
+(2, 'CHANTAL', '$2y$10$hYLPzpC3BzZFIXbvV9kCLeIR7eeORAu6QuzWeiGkFwI.hjSiIQveW', 'comptable', '2026-05-18 19:51:49');
+
+--
 -- Index pour les tables déchargées
 --
 
@@ -229,12 +237,7 @@ ALTER TABLE `service`
 -- AUTO_INCREMENT pour la table `utilisateur`
 --
 ALTER TABLE `utilisateur`
-  MODIFY `id_utilisateur` int(11) NOT NULL AUTO_INCREMENT;
-
--- Insertion d'utilisateurs de démarrage
-INSERT INTO `utilisateur` (`nom_utilisateur`, `mot_de_passe`, `role`) VALUES
-('admin', 'admin123', 'administrateur'),
-('comptable', 'compta123', 'comptable');
+  MODIFY `id_utilisateur` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Contraintes pour les tables déchargées
