@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: index.php');
     exit;
 }
-if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'comptable') {
+if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'caissier') {
     header('Location: pages/paiements/index.php');
     exit;
 }
@@ -201,7 +201,7 @@ foreach ($prestations as $prestation) {
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                             <div>
                                 <h3 class="text-xl font-bold text-gray-800">Gestion des utilisateurs</h3>
-                                <p class="text-gray-600 mt-2">Ajoutez, éditez et gérez les comptes administrateur et comptable.</p>
+                                <p class="text-gray-600 mt-2">Ajoutez, éditez et gérez les comptes administrateur et caissier.</p>
                             </div>
                             <a href="pages/utilisateurs/index.php" class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">
                                 <i class="fas fa-user-lock mr-2"></i>Accéder à la gestion utilisateur

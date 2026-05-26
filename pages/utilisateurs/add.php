@@ -157,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <select name="role" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
                                 <option value="">Sélectionner un rôle</option>
                                 <option value="administrateur" <?php echo $user && $user->getRole() === 'administrateur' ? 'selected' : ''; ?>>Administrateur</option>
-                                <option value="comptable" <?php echo $user && $user->getRole() === 'comptable' ? 'selected' : ''; ?>>Comptable</option>
+                                <option value="caissier" <?php echo $user && $user->getRole() === 'caissier' ? 'selected' : ''; ?>>Caissier</option>
                             </select>
                         </div>
 

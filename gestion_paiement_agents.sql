@@ -152,7 +152,7 @@ CREATE TABLE `utilisateur` (
 
 INSERT INTO `utilisateur` (`id_utilisateur`, `nom_utilisateur`, `mot_de_passe`, `role`, `date_creation`) VALUES
 (1, 'SALEH', '$2y$10$n6CJzPKEBo.MRPEs8ByBEegk.KLkSy531o7eIfLHkFPAHGfYpag92', 'administrateur', '2026-05-18 19:50:40'),
-(2, 'CHANTAL', '$2y$10$hYLPzpC3BzZFIXbvV9kCLeIR7eeORAu6QuzWeiGkFwI.hjSiIQveW', 'comptable', '2026-05-18 19:51:49');
+(2, 'CHANTAL', '$2y$10$hYLPzpC3BzZFIXbvV9kCLeIR7eeORAu6QuzWeiGkFwI.hjSiIQveW', 'caissier', '2026-05-18 19:51:49');
 
 --
 -- Index pour les tables déchargées

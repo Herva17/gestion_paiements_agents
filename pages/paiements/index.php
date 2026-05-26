@@ -5,7 +5,7 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: ../../index.php');
     exit;
 }
-if (!in_array($_SESSION['user_role'], ['administrateur', 'comptable'])) {
+if (!in_array($_SESSION['user_role'], ['administrateur', 'caissier'])) {
     $_SESSION['message'] = "Accès réservé au service Paiements";
     $_SESSION['message_type'] = 'error';
     header('Location: ../../Dashboard.php');
@@ -152,7 +152,7 @@ if (isset($_SESSION['message'])) {
                                     <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"><?php echo $paiement->getId(); ?></td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-800">#<?php echo $paiement->getReference(); ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600"><?php echo number_format($paiement->getMontant(), 2, ',', ' '); ?> €</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600"><?php echo number_format($paiement->getMontant(), 2, ',', ' '); ?> $</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"><?php echo $paiement->getModePaiement(); ?></td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                                             <span class="px-3 py-1 rounded-full text-xs font-medium <?php echo $statut_class; ?>">

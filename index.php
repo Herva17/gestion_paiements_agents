@@ -4,7 +4,7 @@ require_once __DIR__ . '/Config/Database.php';
 require_once __DIR__ . '/Classes/Utilisateur.php';
 
 if (isset($_SESSION['user_id'])) {
-    if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'comptable') {
+    if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'caissier') {
         header('Location: pages/paiements/index.php');
     } else {
         header('Location: Dashboard.php');
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['username'] = $user->getNomUtilisateur();
             $_SESSION['user_role'] = $user->getRole();
 
-            if ($user->getRole() === 'comptable') {
+            if ($user->getRole() === 'caissier') {
                 header('Location: pages/paiements/index.php');
             } else {
                 header('Location: Dashboard.php');
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="w-full max-w-md bg-white rounded-3xl shadow-xl p-8">
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold text-gray-800">Connexion</h1>
-            <p class="text-gray-600 mt-2">Accédez à votre espace administrateur ou comptable.</p>
+            <p class="text-gray-600 mt-2">Accédez à votre espace administrateur ou caissier.</p>
         </div>
 
         <?php if ($error): ?>
@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="mt-6 text-center text-sm text-gray-600">
-            <p>Rôle admis : administrateur / comptable</p>
+            <p>Rôle admis : administrateur / caissier</p>
         </div>
     </div>
 </body>
