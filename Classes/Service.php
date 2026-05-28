@@ -6,23 +6,19 @@ class Service {
     private $id;
     private $designation;
     private $description;
-    private $short_description;
-    private $photo;
+    
     private $db;
 
     // Constructeur
     public function __construct(
         $designation = null,
         $description = null,
-        $short_description = null,
-        $photo = null,
         $id = null
     ) {
         $this->id = $id;
         $this->designation = $designation;
         $this->description = $description;
-        $this->short_description = $short_description;
-        $this->photo = $photo;
+        
         $this->db = Database::getInstance();
     }
 
@@ -37,14 +33,6 @@ class Service {
 
     public function getDescription() {
         return $this->description;
-    }
-
-    public function getShortDescription() {
-        return $this->short_description;
-    }
-
-    public function getPhoto() {
-        return $this->photo;
     }
 
     // Setters
@@ -63,24 +51,13 @@ class Service {
         return $this;
     }
 
-    public function setShortDescription($short_description) {
-        $this->short_description = $short_description;
-        return $this;
-    }
-
-    public function setPhoto($photo) {
-        $this->photo = $photo;
-        return $this;
-    }
-
     // Méthode pour obtenir tous les attributs sous forme de tableau
     public function toArray() {
         return [
             'id' => $this->id,
             'designation' => $this->designation,
             'description' => $this->description,
-            'short_description' => $this->short_description,
-            'photo' => $this->photo
+            
         ];
     }
 
@@ -90,16 +67,14 @@ class Service {
      * Insère un nouveau service dans la base de données
      */
     public function insert() {
-        $sql = "INSERT INTO Service (designation, description, short_description, photo)
-                VALUES (:designation, :description, :short_description, :photo)";
+        $sql = "INSERT INTO Service (designation, description)
+            VALUES (:designation, :description)";
         
         try {
             $stmt = $this->db->prepare($sql);
             
             $stmt->bindParam(':designation', $this->designation);
             $stmt->bindParam(':description', $this->description);
-            $stmt->bindParam(':short_description', $this->short_description);
-            $stmt->bindParam(':photo', $this->photo);
             
             if ($stmt->execute()) {
                 $this->id = $this->db->lastInsertId();
@@ -118,9 +93,7 @@ class Service {
     public function update() {
         $sql = "UPDATE Service 
                 SET designation = :designation, 
-                    description = :description,
-                    short_description = :short_description,
-                    photo = :photo
+                    description = :description
                 WHERE id = :id";
         
         try {
@@ -129,8 +102,6 @@ class Service {
             $stmt->bindParam(':id', $this->id);
             $stmt->bindParam(':designation', $this->designation);
             $stmt->bindParam(':description', $this->description);
-            $stmt->bindParam(':short_description', $this->short_description);
-            $stmt->bindParam(':photo', $this->photo);
             
             return $stmt->execute();
         } catch (PDOException $e) {
@@ -173,8 +144,6 @@ class Service {
                 return new self(
                     $row['designation'],
                     $row['description'],
-                    $row['short_description'] ?? null,
-                    $row['photo'] ?? null,
                     $row['id']
                 );
             }
@@ -194,7 +163,7 @@ class Service {
         $services = [];
         
         if ($search) {
-            $sql .= " WHERE designation LIKE :search1 OR description LIKE :search2 OR short_description LIKE :search3";
+            $sql .= " WHERE designation LIKE :search1 OR description LIKE :search2";
         }
         
         try {
@@ -203,7 +172,6 @@ class Service {
                 $queryValue = '%' . $search . '%';
                 $stmt->bindParam(':search1', $queryValue);
                 $stmt->bindParam(':search2', $queryValue);
-                $stmt->bindParam(':search3', $queryValue);
             }
             $stmt->execute();
             
@@ -211,8 +179,6 @@ class Service {
                 $service = new self(
                     $row['designation'],
                     $row['description'],
-                    $row['short_description'] ?? null,
-                    $row['photo'] ?? null,
                     $row['id']
                 );
                 $services[] = $service;

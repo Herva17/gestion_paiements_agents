@@ -13,6 +13,8 @@ if ($_SESSION['user_role'] !== 'administrateur') {
 }
 require_once __DIR__ . '/../../Classes/Prestation.php';
 require_once __DIR__ . '/../../Classes/Affectation.php';
+require_once __DIR__ . '/../../Classes/Agent.php';
+require_once __DIR__ . '/../../Classes/Service.php';
 
 $prestation = null;
 $is_edit = false;
@@ -37,20 +39,15 @@ if (isset($_GET['id'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $libelle = $_POST['libelle'] ?? '';
-    $nbreHeure = $_POST['nbreHeure'] ?? '';
-    $salaire_horaire = $_POST['salaire_horaire'] ?? '';
+    $montant = $_POST['montant'] ?? '';
     $date_prestation = $_POST['date_prestation'] ?? '';
     $id_affectation = $_POST['id_affectation'] ?? '';
 
-    if (empty($libelle) || empty($id_affectation)) {
+    if (empty($libelle) || empty($montant) || empty($id_affectation)) {
         $error = "Les champs requis doivent être remplis";
     } else {
-        $montant = $nbreHeure * $salaire_horaire;
-        
         if ($is_edit) {
             $prestation->setLibelle($libelle);
-            $prestation->setNbreHeure($nbreHeure);
-            $prestation->setSalaireHoraire($salaire_horaire);
             $prestation->setMontant($montant);
             $prestation->setDatePrestation($date_prestation);
             $prestation->setIdAffectation($id_affectation);
@@ -64,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = "Erreur lors de la mise à jour";
             }
         } else {
-            $new_prestation = new Prestation($libelle, $nbreHeure, $salaire_horaire, $montant, $date_prestation, $id_affectation);
+            $new_prestation = new Prestation($libelle, $montant, $date_prestation, $id_affectation);
             
             if ($new_prestation->insert()) {
                 $_SESSION['message'] = "Prestation ajoutée avec succès";
@@ -180,33 +177,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                                     Affectation <span class="text-red-500">*</span>
                                 </label>
-                                <select name="id_affectation" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
+                                <select id="id_affectation" name="id_affectation" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
                                     <option value="">Sélectionner une affectation</option>
-                                    <?php foreach ($affectations as $affectation): ?>
-                                    <option value="<?php echo $affectation->getId(); ?>" <?php echo $prestation && $prestation->getIdAffectation() == $affectation->getId() ? 'selected' : ''; ?>>
-                                        Affectation #<?php echo $affectation->getId(); ?>
+                                    <?php foreach ($affectations as $affectation):
+                                        $agentName = 'N/A';
+                                        $serviceName = '';
+                                        $agentObj = Agent::getById($affectation->getIdAgent());
+                                        if ($agentObj) $agentName = $agentObj->getNomComplet();
+                                        $serviceObj = Service::getById($affectation->getIdService());
+                                        if ($serviceObj) $serviceName = $serviceObj->getDesignation();
+                                    ?>
+                                    <option value="<?php echo $affectation->getId(); ?>" data-agent="<?php echo htmlspecialchars($agentName); ?>" data-service="<?php echo htmlspecialchars($serviceName); ?>" <?php echo $prestation && $prestation->getIdAffectation() == $affectation->getId() ? 'selected' : ''; ?> >
+                                        Affectation #<?php echo $affectation->getId(); ?> - <?php echo htmlspecialchars($agentName); ?> (<?php echo htmlspecialchars($serviceName); ?>)
                                     </option>
                                     <?php endforeach; ?>
                                 </select>
+
+                                <!-- Agent associé (lecture seule) -->
+                                <div class="mt-3">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Agent associé</label>
+                                    <input type="text" id="agentName" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100" readonly value="<?php
+                                        $initialAgent = '';
+                                        if ($prestation) {
+                                            $affSel = Affectation::getById($prestation->getIdAffectation());
+                                            if ($affSel) {
+                                                $agSel = Agent::getById($affSel->getIdAgent());
+                                                if ($agSel) $initialAgent = $agSel->getNomComplet();
+                                            }
+                                        }
+                                        echo htmlspecialchars($initialAgent);
+                                    ?>">
+                                </div>
                             </div>
 
-                            <!-- Nombre d'heures -->
+                            <!-- Montant -->
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Nombre d'heures
-                                </label>
-                                <input type="number" name="nbreHeure" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" 
-                                    value="<?php echo $prestation ? $prestation->getNbreHeure() : ''; ?>" step="0.5">
-                            </div>
-
-                            <!-- Salaire horaire -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Salaire horaire (€)
-                                </label>
-                                <input type="number" name="salaire_horaire" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" 
-                                    value="<?php echo $prestation ? $prestation->getSalaireHoraire() : ''; ?>" step="0.01">
-                            </div>
+                                Montant ($) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" name="montant" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" 
+                                value="<?php echo $prestation ? $prestation->getMontant() : ''; ?>" step="0.01" required>
 
                             <!-- Date -->
                             <div class="md:col-span-2">
@@ -232,5 +242,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const select = document.getElementById('id_affectation');
+            const agentInput = document.getElementById('agentName');
+            if (!select || !agentInput) return;
+            function updateAgent() {
+                const opt = select.options[select.selectedIndex];
+                agentInput.value = opt ? (opt.getAttribute('data-agent') || '') : '';
+            }
+            select.addEventListener('change', updateAgent);
+            updateAgent();
+        });
+    </script>
 </body>
 </html>

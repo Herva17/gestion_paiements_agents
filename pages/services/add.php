@@ -35,31 +35,8 @@ if (isset($_GET['id'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $designation = $_POST['designation'] ?? '';
     $description = $_POST['description'] ?? '';
-    $short_description = $_POST['short_description'] ?? '';
-    $photoPath = $service ? $service->getPhoto() : null;
-
-    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = __DIR__ . '/../../assets/uploads/services/';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
-        }
-
-        $fileInfo = pathinfo($_FILES['photo']['name']);
-        $extension = strtolower($fileInfo['extension']);
-        $allowed = ['jpg', 'jpeg', 'png', 'webp'];
-
-        if (!in_array($extension, $allowed)) {
-            $error = "Format d'image non autorisé. Utilisez JPG, PNG ou WEBP.";
-        } else {
-            $filename = uniqid('service_') . '.' . $extension;
-            $destination = $uploadDir . $filename;
-            if (move_uploaded_file($_FILES['photo']['tmp_name'], $destination)) {
-                $photoPath = 'assets/uploads/services/' . $filename;
-            } else {
-                $error = "Impossible de déplacer l'image téléchargée.";
-            }
-        }
-    }
+    $short_description = null;
+    $photoPath = null;
 
     if (empty($designation) && !isset($error)) {
         $error = "La désignation est requise";
@@ -69,8 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($is_edit) {
             $service->setDesignation($designation);
             $service->setDescription($description);
-            $service->setShortDescription($short_description);
-            $service->setPhoto($photoPath);
             
             if ($service->update()) {
                 $_SESSION['message'] = "Service mis à jour avec succès";
@@ -81,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = "Erreur lors de la mise à jour";
             }
         } else {
-            $new_service = new Service($designation, $description, $short_description, $photoPath);
+            $new_service = new Service($designation, $description);
             
             if ($new_service->insert()) {
                 $_SESSION['message'] = "Service ajouté avec succès";
@@ -181,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <!-- Form -->
                 <div class="max-w-2xl bg-white rounded-lg shadow-md p-8">
-                    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                    <form method="POST" class="space-y-6">
                         <!-- Désignation -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
@@ -189,15 +164,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </label>
                             <input type="text" name="designation" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" 
                                 value="<?php echo $service ? $service->getDesignation() : ''; ?>" required>
-                        </div>
-
-                        <!-- Description courte -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Description courte
-                            </label>
-                            <input type="text" name="short_description" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" 
-                                value="<?php echo $service ? htmlspecialchars($service->getShortDescription()) : ''; ?>">
                         </div>
 
                         <!-- Description -->
@@ -208,19 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <textarea name="description" rows="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"><?php echo $service ? htmlspecialchars($service->getDescription()) : ''; ?></textarea>
                         </div>
 
-                        <!-- Photo du service -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Photo du service
-                            </label>
-                            <input type="file" name="photo" accept="image/png,image/jpeg,image/webp" class="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700" />
-                            <?php if ($service && $service->getPhoto()): ?>
-                            <div class="mt-4">
-                                <p class="text-sm text-gray-600 mb-2">Photo actuelle :</p>
-                                <img src="../../<?php echo htmlspecialchars($service->getPhoto()); ?>" alt="Photo du service" class="w-48 h-32 object-cover rounded-lg border border-gray-200">
-                            </div>
-                            <?php endif; ?>
-                        </div>
+                        <!-- (image field removed) -->
 
                         <!-- Buttons -->
                         <div class="flex gap-4 pt-4 border-t border-gray-200">

@@ -13,6 +13,8 @@ if ($_SESSION['user_role'] !== 'administrateur') {
 }
 require_once __DIR__ . '/../../Classes/Prestation.php';
 require_once __DIR__ . '/../../Classes/Affectation.php';
+require_once __DIR__ . '/../../Classes/Agent.php';
+require_once __DIR__ . '/../../Classes/Service.php';
 
 $prestations = Prestation::getAll();
 
@@ -125,17 +127,16 @@ if (isset($_SESSION['message'])) {
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">N°</th>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Libellé</th>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Heures</th>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tarif/h</th>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Montant</th>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Affectation</th>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (empty($prestations)): ?>
                                 <tr>
-                                    <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
                                         <i class="fas fa-inbox text-4xl mb-2"></i>
                                         <p class="mt-2">Aucune prestation trouvée</p>
                                     </td>
@@ -145,10 +146,28 @@ if (isset($_SESSION['message'])) {
                                     <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"><?php echo $prestation->getNumeroPrest(); ?></td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"><?php echo $prestation->getLibelle(); ?></td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"><?php echo $prestation->getNbreHeure(); ?>h</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"><?php echo number_format($prestation->getSalaireHoraire(), 2, ',', ' '); ?> €</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600"><?php echo number_format($prestation->getMontant(), 2, ',', ' '); ?> €</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600"><?php echo number_format($prestation->getMontant(), 2, ',', ' '); ?> $</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"><?php echo $prestation->getDatePrestation(); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            <?php
+                                            $aff = Affectation::getById($prestation->getIdAffectation());
+                                            if ($aff) {
+                                                $agentName = 'N/A';
+                                                $serviceName = 'N/A';
+                                                $ag = Agent::getById($aff->getIdAgent());
+                                                if ($ag) {
+                                                    $agentName = $ag->getNomComplet();
+                                                }
+                                                $serviceObj = Service::getById($aff->getIdService());
+                                                if ($serviceObj) {
+                                                    $serviceName = $serviceObj->getDesignation();
+                                                }
+                                                echo "Affectation #{$aff->getId()} - {$agentName} ({$serviceName})";
+                                            } else {
+                                                echo 'N/A';
+                                            }
+                                            ?>
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm gap-2 flex">
                                             <a href="edit.php?id=<?php echo $prestation->getNumeroPrest(); ?>" class="inline-flex items-center px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition">
                                                 <i class="fas fa-edit"></i>

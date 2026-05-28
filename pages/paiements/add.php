@@ -13,6 +13,8 @@ if (!in_array($_SESSION['user_role'], ['administrateur', 'caissier'])) {
 }
 require_once __DIR__ . '/../../Classes/Paiement.php';
 require_once __DIR__ . '/../../Classes/Prestation.php';
+require_once __DIR__ . '/../../Classes/Affectation.php';
+require_once __DIR__ . '/../../Classes/Agent.php';
 
 $role = $_SESSION['user_role'] ?? 'Invité';
 
@@ -44,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mode_paiement = $_POST['mode_paiement'] ?? '';
     $statut = $_POST['statut'] ?? '';
     $numeroPrest = $_POST['numeroPrest'] ?? '';
+    $id_agent = $_POST['id_agent'] ?? '';
 
     if (empty($reference) || empty($numeroPrest)) {
         $error = "Les champs requis doivent être remplis";
@@ -55,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $paiement->setModePaiement($mode_paiement);
             $paiement->setStatut($statut);
             $paiement->setNumeroPrest($numeroPrest);
+            $paiement->setIdAgent($id_agent);
             
             if ($paiement->update()) {
                 $_SESSION['message'] = "Paiement mis à jour avec succès";
@@ -65,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = "Erreur lors de la mise à jour";
             }
         } else {
-            $new_paiement = new Paiement($reference, $montant, $date_paiement, $mode_paiement, $statut, $numeroPrest);
+            $new_paiement = new Paiement($reference, $montant, $date_paiement, $mode_paiement, $statut, $numeroPrest, $id_agent);
             
             if ($new_paiement->insert()) {
                 $_SESSION['message'] = "Paiement ajouté avec succès";
@@ -184,20 +188,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                                     Prestation <span class="text-red-500">*</span>
                                 </label>
-                                <select name="numeroPrest" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
+                                <select name="numeroPrest" id="numeroPrest" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
                                     <option value="">Sélectionner une prestation</option>
-                                    <?php foreach ($prestations as $prestation): ?>
-                                    <option value="<?php echo $prestation->getNumeroPrest(); ?>" <?php echo $paiement && $paiement->getNumeroPrest() == $prestation->getNumeroPrest() ? 'selected' : ''; ?>>
-                                        Prestation #<?php echo $prestation->getNumeroPrest(); ?> - <?php echo $prestation->getLibelle(); ?>
+                                    <?php foreach ($prestations as $prestation):
+                                        $agentName = 'N/A';
+                                        $agentId = '';
+                                        $aff = Affectation::getById($prestation->getIdAffectation());
+                                        if ($aff) {
+                                            $agentObj = Agent::getById($aff->getIdAgent());
+                                            if ($agentObj) {
+                                                $agentName = $agentObj->getNomComplet();
+                                                $agentId = $agentObj->getIdAgent();
+                                            }
+                                        }
+                                    ?>
+                                    <option value="<?php echo $prestation->getNumeroPrest(); ?>" data-agent="<?php echo htmlspecialchars($agentName); ?>" data-agent-id="<?php echo htmlspecialchars($agentId); ?>" <?php echo $paiement && $paiement->getNumeroPrest() == $prestation->getNumeroPrest() ? 'selected' : ''; ?> >
+                                        Prestation #<?php echo $prestation->getNumeroPrest(); ?> - <?php echo htmlspecialchars($prestation->getLibelle()); ?> - Agent: <?php echo htmlspecialchars($agentName); ?>
                                     </option>
                                     <?php endforeach; ?>
                                 </select>
+
+                                <!-- Agent associé (lecture seule) -->
+                                <div class="mt-3">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Agent associé</label>
+                                    <input type="text" id="agentName" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100" readonly value="<?php
+                                        $initialAgent = '';
+                                        $initialAgentId = '';
+                                        if ($paiement) {
+                                            $selPrest = Prestation::getById($paiement->getNumeroPrest());
+                                            if ($selPrest) {
+                                                $affSel = Affectation::getById($selPrest->getIdAffectation());
+                                                if ($affSel) {
+                                                    $agSel = Agent::getById($affSel->getIdAgent());
+                                                    if ($agSel) {
+                                                        $initialAgent = $agSel->getNomComplet();
+                                                        $initialAgentId = $agSel->getIdAgent();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        echo htmlspecialchars($initialAgent);
+                                    ?>">
+                                    <input type="hidden" name="id_agent" id="id_agent" value="<?php echo htmlspecialchars($initialAgentId); ?>">
+                                </div>
                             </div>
 
                             <!-- Montant -->
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Montant (€)
+                                    Montant ($)
                                 </label>
                                 <input type="number" name="montant" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" 
                                     value="<?php echo $paiement ? $paiement->getMontant() : ''; ?>" step="0.01">
@@ -254,5 +293,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const prestSelect = document.getElementById('numeroPrest');
+            const agentInput = document.getElementById('agentName');
+            const agentIdInput = document.getElementById('id_agent');
+            if (!prestSelect || !agentInput || !agentIdInput) return;
+            function updateAgent() {
+                const opt = prestSelect.options[prestSelect.selectedIndex];
+                agentInput.value = opt ? (opt.getAttribute('data-agent') || '') : '';
+                agentIdInput.value = opt ? (opt.getAttribute('data-agent-id') || '') : '';
+            }
+            prestSelect.addEventListener('change', updateAgent);
+            updateAgent();
+        });
+    </script>
 </body>
 </html>

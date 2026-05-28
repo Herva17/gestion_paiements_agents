@@ -59,7 +59,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: index.php');
                 exit;
             }
-            $error = "Erreur lors de la mise à jour de l'utilisateur.";
+            // Vérifier si le nom d'utilisateur est déjà utilisé par un autre
+            $existing = Utilisateur::getByUsername($nom_utilisateur);
+            if ($existing && $existing->getIdUtilisateur() !== $user->getIdUtilisateur()) {
+                $error = "Le nom d'utilisateur est déjà utilisé par un autre compte.";
+            } else {
+                $error = "Erreur lors de la mise à jour de l'utilisateur.";
+            }
         } else {
             $newUser = new Utilisateur($nom_utilisateur, $mot_de_passe, $role);
             if ($newUser->insert()) {
@@ -68,7 +74,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: index.php');
                 exit;
             }
-            $error = "Erreur lors de l'ajout de l'utilisateur.";
+            // Vérifier si l'utilisateur existe déjà (contrainte unique)
+            $existing = Utilisateur::getByUsername($nom_utilisateur);
+            if ($existing) {
+                $error = "Le nom d'utilisateur existe déjà.";
+            } else {
+                $error = "Erreur lors de l'ajout de l'utilisateur.";
+            }
         }
     }
 }

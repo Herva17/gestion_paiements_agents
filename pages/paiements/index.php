@@ -13,6 +13,8 @@ if (!in_array($_SESSION['user_role'], ['administrateur', 'caissier'])) {
 }
 require_once __DIR__ . '/../../Classes/Paiement.php';
 require_once __DIR__ . '/../../Classes/Prestation.php';
+require_once __DIR__ . '/../../Classes/Affectation.php';
+require_once __DIR__ . '/../../Classes/Agent.php';
 
 $role = $_SESSION['user_role'] ?? 'Invité';
 
@@ -134,6 +136,7 @@ if (isset($_SESSION['message'])) {
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Mode</th>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Statut</th>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Agent</th>
                                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
@@ -160,6 +163,27 @@ if (isset($_SESSION['message'])) {
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"><?php echo $paiement->getDatePaiement(); ?></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            <?php
+                                            $agentName = 'N/A';
+                                            // Prefer stored id_agent
+                                            $aid = $paiement->getIdAgent();
+                                            if ($aid) {
+                                                $ag = Agent::getById($aid);
+                                                if ($ag) $agentName = $ag->getNomComplet();
+                                            } else {
+                                                $prest = Prestation::getById($paiement->getNumeroPrest());
+                                                if ($prest) {
+                                                    $aff = Affectation::getById($prest->getIdAffectation());
+                                                    if ($aff) {
+                                                        $ag2 = Agent::getById($aff->getIdAgent());
+                                                        if ($ag2) $agentName = $ag2->getNomComplet();
+                                                    }
+                                                }
+                                            }
+                                            echo htmlspecialchars($agentName);
+                                            ?>
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm gap-2 flex">
                                             <a href="receipt.php?id=<?php echo $paiement->getId(); ?>" class="inline-flex items-center px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition">
                                                 <i class="fas fa-receipt"></i>

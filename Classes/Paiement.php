@@ -10,6 +10,7 @@ class Paiement {
     private $mode_paiement;
     private $statut;
     private $numeroPrest;
+    private $id_agent;
     private $db;
 
     // Constructeur
@@ -20,6 +21,7 @@ class Paiement {
         $mode_paiement = null,
         $statut = null,
         $numeroPrest = null,
+        $id_agent = null,
         $id = null
     ) {
         $this->id = $id;
@@ -29,6 +31,7 @@ class Paiement {
         $this->mode_paiement = $mode_paiement;
         $this->statut = $statut;
         $this->numeroPrest = $numeroPrest;
+        $this->id_agent = $id_agent;
         $this->db = Database::getInstance();
     }
 
@@ -59,6 +62,10 @@ class Paiement {
 
     public function getNumeroPrest() {
         return $this->numeroPrest;
+    }
+
+    public function getIdAgent() {
+        return $this->id_agent;
     }
 
     // Setters
@@ -97,6 +104,11 @@ class Paiement {
         return $this;
     }
 
+    public function setIdAgent($id_agent) {
+        $this->id_agent = $id_agent;
+        return $this;
+    }
+
     // Méthode pour obtenir tous les attributs sous forme de tableau
     public function toArray() {
         return [
@@ -106,7 +118,8 @@ class Paiement {
             'date_paiement' => $this->date_paiement,
             'mode_paiement' => $this->mode_paiement,
             'statut' => $this->statut,
-            'numeroPrest' => $this->numeroPrest
+            'numeroPrest' => $this->numeroPrest,
+            'id_agent' => $this->id_agent
         ];
     }
 
@@ -116,8 +129,8 @@ class Paiement {
      * Insère un nouveau paiement dans la base de données
      */
     public function insert() {
-        $sql = "INSERT INTO Paiement (reference, montant, date_paiement, mode_paiement, statut, numeroPrest)
-                VALUES (:reference, :montant, :date_paiement, :mode_paiement, :statut, :numeroPrest)";
+        $sql = "INSERT INTO Paiement (reference, montant, date_paiement, mode_paiement, statut, numeroPrest, id_agent)
+                VALUES (:reference, :montant, :date_paiement, :mode_paiement, :statut, :numeroPrest, :id_agent)";
         
         try {
             $stmt = $this->db->prepare($sql);
@@ -128,6 +141,7 @@ class Paiement {
             $stmt->bindParam(':mode_paiement', $this->mode_paiement);
             $stmt->bindParam(':statut', $this->statut);
             $stmt->bindParam(':numeroPrest', $this->numeroPrest);
+            $stmt->bindParam(':id_agent', $this->id_agent);
             
             if ($stmt->execute()) {
                 $this->id = $this->db->lastInsertId();
@@ -150,7 +164,8 @@ class Paiement {
                     date_paiement = :date_paiement, 
                     mode_paiement = :mode_paiement, 
                     statut = :statut, 
-                    numeroPrest = :numeroPrest
+                    numeroPrest = :numeroPrest,
+                    id_agent = :id_agent
                 WHERE id = :id";
         
         try {
@@ -163,6 +178,7 @@ class Paiement {
             $stmt->bindParam(':mode_paiement', $this->mode_paiement);
             $stmt->bindParam(':statut', $this->statut);
             $stmt->bindParam(':numeroPrest', $this->numeroPrest);
+            $stmt->bindParam(':id_agent', $this->id_agent);
             
             return $stmt->execute();
         } catch (PDOException $e) {
@@ -209,6 +225,7 @@ class Paiement {
                     $row['mode_paiement'],
                     $row['statut'],
                     $row['numeroPrest'],
+                    isset($row['id_agent']) ? $row['id_agent'] : null,
                     $row['id']
                 );
             }
@@ -239,6 +256,7 @@ class Paiement {
                     $row['mode_paiement'],
                     $row['statut'],
                     $row['numeroPrest'],
+                    isset($row['id_agent']) ? $row['id_agent'] : null,
                     $row['id']
                 );
                 $paiements[] = $paiement;
@@ -271,6 +289,7 @@ class Paiement {
                     $row['mode_paiement'],
                     $row['statut'],
                     $row['numeroPrest'],
+                    isset($row['id_agent']) ? $row['id_agent'] : null,
                     $row['id']
                 );
                 $paiements[] = $paiement;
@@ -303,6 +322,7 @@ class Paiement {
                     $row['mode_paiement'],
                     $row['statut'],
                     $row['numeroPrest'],
+                    isset($row['id_agent']) ? $row['id_agent'] : null,
                     $row['id']
                 );
                 $paiements[] = $paiement;

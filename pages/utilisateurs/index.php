@@ -178,35 +178,7 @@ if (isset($_SESSION['message'])) {
                     <?php endif; ?>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-white p-6 rounded-lg shadow-md border border-green-200">
-                        <h3 class="text-xl font-semibold text-green-700 mb-3">Agents payés</h3>
-                        <p class="text-sm text-gray-600 mb-4">Nombre : <?php echo count($agents_paid); ?></p>
-                        <?php if (count($agents_paid) > 0): ?>
-                        <ul class="list-disc list-inside text-gray-700 space-y-2">
-                            <?php foreach ($agents_paid as $agent): ?>
-                            <li><?php echo htmlspecialchars($agent->getNomComplet()); ?></li>
-                            <?php endforeach; ?>
-                        </ul>
-                        <?php else: ?>
-                        <p class="text-gray-500">Aucun agent entièrement payé pour le moment.</p>
-                        <?php endif; ?>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-md border border-yellow-200">
-                        <h3 class="text-xl font-semibold text-yellow-700 mb-3">Agents non payés</h3>
-                        <p class="text-sm text-gray-600 mb-4">Nombre : <?php echo count($agents_unpaid); ?></p>
-                        <?php if (count($agents_unpaid) > 0): ?>
-                        <ul class="list-disc list-inside text-gray-700 space-y-2">
-                            <?php foreach ($agents_unpaid as $agent): ?>
-                            <li><?php echo htmlspecialchars($agent->getNomComplet()); ?></li>
-                            <?php endforeach; ?>
-                        </ul>
-                        <?php else: ?>
-                        <p class="text-gray-500">Tous les agents sont à jour de paiement.</p>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
+                
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full">

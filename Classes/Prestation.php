@@ -5,8 +5,6 @@ require_once __DIR__ . '/../Config/Database.php';
 class Prestation {
     private $numeroPrest;
     private $libelle;
-    private $nbreHeure;
-    private $salaire_horaire;
     private $montant;
     private $date_prestation;
     private $id_affectation;
@@ -15,8 +13,6 @@ class Prestation {
     // Constructeur
     public function __construct(
         $libelle = null,
-        $nbreHeure = null,
-        $salaire_horaire = null,
         $montant = null,
         $date_prestation = null,
         $id_affectation = null,
@@ -24,8 +20,6 @@ class Prestation {
     ) {
         $this->numeroPrest = $numeroPrest;
         $this->libelle = $libelle;
-        $this->nbreHeure = $nbreHeure;
-        $this->salaire_horaire = $salaire_horaire;
         $this->montant = $montant;
         $this->date_prestation = $date_prestation;
         $this->id_affectation = $id_affectation;
@@ -39,14 +33,6 @@ class Prestation {
 
     public function getLibelle() {
         return $this->libelle;
-    }
-
-    public function getNbreHeure() {
-        return $this->nbreHeure;
-    }
-
-    public function getSalaireHoraire() {
-        return $this->salaire_horaire;
     }
 
     public function getMontant() {
@@ -72,16 +58,6 @@ class Prestation {
         return $this;
     }
 
-    public function setNbreHeure($nbreHeure) {
-        $this->nbreHeure = $nbreHeure;
-        return $this;
-    }
-
-    public function setSalaireHoraire($salaire_horaire) {
-        $this->salaire_horaire = $salaire_horaire;
-        return $this;
-    }
-
     public function setMontant($montant) {
         $this->montant = $montant;
         return $this;
@@ -97,21 +73,11 @@ class Prestation {
         return $this;
     }
 
-    // Méthode pour calculer le montant (salaire_horaire * nbreHeure)
-    public function calculerMontant() {
-        if ($this->salaire_horaire && $this->nbreHeure) {
-            $this->montant = $this->salaire_horaire * $this->nbreHeure;
-        }
-        return $this->montant;
-    }
-
     // Méthode pour obtenir tous les attributs sous forme de tableau
     public function toArray() {
         return [
             'numeroPrest' => $this->numeroPrest,
             'libelle' => $this->libelle,
-            'nbreHeure' => $this->nbreHeure,
-            'salaire_horaire' => $this->salaire_horaire,
             'montant' => $this->montant,
             'date_prestation' => $this->date_prestation,
             'id_affectation' => $this->id_affectation
@@ -124,15 +90,13 @@ class Prestation {
      * Insère une nouvelle prestation dans la base de données
      */
     public function insert() {
-        $sql = "INSERT INTO Prestation (libelle, nbreHeure, salaire_horaire, montant, date_prestation, id_affectation)
-                VALUES (:libelle, :nbreHeure, :salaire_horaire, :montant, :date_prestation, :id_affectation)";
+        $sql = "INSERT INTO Prestation (libelle, montant, date_prestation, id_affectation)
+                VALUES (:libelle, :montant, :date_prestation, :id_affectation)";
         
         try {
             $stmt = $this->db->prepare($sql);
             
             $stmt->bindParam(':libelle', $this->libelle);
-            $stmt->bindParam(':nbreHeure', $this->nbreHeure);
-            $stmt->bindParam(':salaire_horaire', $this->salaire_horaire);
             $stmt->bindParam(':montant', $this->montant);
             $stmt->bindParam(':date_prestation', $this->date_prestation);
             $stmt->bindParam(':id_affectation', $this->id_affectation);
@@ -154,8 +118,6 @@ class Prestation {
     public function update() {
         $sql = "UPDATE Prestation 
                 SET libelle = :libelle, 
-                    nbreHeure = :nbreHeure, 
-                    salaire_horaire = :salaire_horaire, 
                     montant = :montant, 
                     date_prestation = :date_prestation, 
                     id_affectation = :id_affectation
@@ -166,8 +128,6 @@ class Prestation {
             
             $stmt->bindParam(':numeroPrest', $this->numeroPrest);
             $stmt->bindParam(':libelle', $this->libelle);
-            $stmt->bindParam(':nbreHeure', $this->nbreHeure);
-            $stmt->bindParam(':salaire_horaire', $this->salaire_horaire);
             $stmt->bindParam(':montant', $this->montant);
             $stmt->bindParam(':date_prestation', $this->date_prestation);
             $stmt->bindParam(':id_affectation', $this->id_affectation);
@@ -212,8 +172,6 @@ class Prestation {
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
                 return new self(
                     $row['libelle'],
-                    $row['nbreHeure'],
-                    $row['salaire_horaire'],
                     $row['montant'],
                     $row['date_prestation'],
                     $row['id_affectation'],
@@ -242,8 +200,6 @@ class Prestation {
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $prestation = new self(
                     $row['libelle'],
-                    $row['nbreHeure'],
-                    $row['salaire_horaire'],
                     $row['montant'],
                     $row['date_prestation'],
                     $row['id_affectation'],
@@ -274,8 +230,6 @@ class Prestation {
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $prestation = new self(
                     $row['libelle'],
-                    $row['nbreHeure'],
-                    $row['salaire_horaire'],
                     $row['montant'],
                     $row['date_prestation'],
                     $row['id_affectation'],
